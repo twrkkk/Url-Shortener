@@ -7,16 +7,21 @@ public class MainDbContext: DbContext
 {
     public DbSet<UrlDB> Urls { get; set; }
 
-    private readonly ConfigurationManager _configurationManager;
 
-    public MainDbContext(DbContextOptions<MainDbContext> options, ConfigurationManager configurationManager) : base(options)
+    public MainDbContext(DbContextOptions<MainDbContext> options) : base(options)
     {
-        _configurationManager = configurationManager;
+        Database.EnsureCreated();
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        var connectionSrting = _configurationManager.GetConnectionString("Default");
-        optionsBuilder.UseNpgsql(connectionSrting);
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+        var connectionString = configuration.GetConnectionString("Default");
+
+        optionsBuilder.UseNpgsql(connectionString);
     }
 }
