@@ -10,7 +10,8 @@ public class MainDbContext: DbContext
 
     public MainDbContext(DbContextOptions<MainDbContext> options) : base(options)
     {
-        Database.EnsureCreated();
+        if(Urls.FirstOrDefaultAsync() == null)
+            Database.EnsureCreatedAsync();
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
