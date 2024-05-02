@@ -1,4 +1,4 @@
-﻿namespace Url_Shortener.Entities;
+﻿namespace Url_Shortener.Data.Entities;
 
 public class BaseEntity
 {
