@@ -1,0 +1,90 @@
+﻿@page "/{code}"
+@page "/"
+@using Url_Shortener_Client.Models
+@inject HttpClient HttpClient
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavManager
+
+@if (code == null)
+{
+    <div class="center">
+        <input type="text" @bind="@longUrl" style="width: 40%;" />
+        <button @onclick="Submit">Shorten</button>
+        <p>Short URL:</p>
+        <input type="text" readonly value="@shortUrl" style="width: 40%;" />
+        <button @onclick="CopyToClipboard">Copy</button>
+    </div>
+}
+else
+{
+    if (!string.IsNullOrEmpty(longUrl))
+    {
+        NavManager.NavigateTo(longUrl);
+    }
+}
+
+@code {
+    private string longUrl;
+    private string shortUrl;
+    [Parameter] public string code { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(code))
+        {
+            longUrl = await GetLongUrl(code);
+        }
+    }
+
+    private async Task Submit()
+    {
+        if (string.IsNullOrEmpty(longUrl))
+            return;
+
+        var obj = new LongRequest { LongUrl = longUrl };
+        var response = await HttpClient.PostAsJsonAsync("api/Url/LongToShort", obj);
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            shortUrl = NavManager.Uri + content;
+        }
+        else
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            throw new Exception(errorContent);
+        }
+    }
+
+    private async Task<string> GetLongUrl(string urlShort)
+    {
+        var obj = new ShortRequest { ShortUrl = urlShort };
+        var response = await HttpClient.PostAsJsonAsync("api/Url/ShortToLong", obj);
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            return content;
+        }
+        else
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            throw new Exception(errorContent);
+        }
+    }
+
+    private async Task CopyToClipboard()
+    {
+        await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", shortUrl);
+    }
+}
+
+
+<style>
+    .center {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+    }
+</style>

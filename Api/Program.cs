@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NetSchool.Api.Configuration;
 using Url_Shortener.Data.Context;
 using Url_Shortener.Data.DTO;
 using Url_Shortener.Services;
@@ -11,6 +12,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAppCors();
 
 var connectionString = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContextFactory<MainDbContext>(options => options.UseNpgsql(connectionString));
@@ -31,16 +33,18 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapFallback(async (IDbContextFactory<MainDbContext> IDbContextFactory, HttpContext context, IUrlService urlService) =>
-{
-    var path = context.Request.Path.ToUriComponent().Trim('/');
-    using var db = IDbContextFactory.CreateDbContext();
-    var result = await db.Urls.FirstOrDefaultAsync(x=>x.ShortUrl == path);
+app.UseAppCors();
 
-    if (string.IsNullOrEmpty(result.Url))
-        return Results.BadRequest();
+//app.MapFallback(async (IDbContextFactory<MainDbContext> IDbContextFactory, HttpContext context, IUrlService urlService) =>
+//{
+//    var path = context.Request.Path.ToUriComponent().Trim('/');
+//    using var db = IDbContextFactory.CreateDbContext();
+//    var result = await db.Urls.FirstOrDefaultAsync(x => x.ShortUrl == path);
 
-    return Results.Redirect(result.Url);
-});
+//    if (string.IsNullOrEmpty(result.Url))
+//        return Results.BadRequest();
+
+//    return Results.Redirect(result.Url);
+//});
 
 app.Run();

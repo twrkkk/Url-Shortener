@@ -20,9 +20,19 @@ namespace Url_Shortener.Controllers
         public async Task<IActionResult> LongToShort([FromBody] LongRequest request)
         {
             var result = await _urlOperations.LongToShortUrlAsync(request);
-            var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/{result}";
 
-            return Ok(url);
+            return Ok(result);
+        }
+
+        [HttpPost("ShortToLong")]
+        public async Task<IActionResult> ShortToLong([FromBody] ShortRequest request)
+        {
+            var result = await _urlOperations.ShortToLongUrlAsync(request);
+
+            if (string.IsNullOrEmpty(result))
+                return BadRequest();
+
+            return Ok(result);
         }
     }
 }
