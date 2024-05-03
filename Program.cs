@@ -31,4 +31,16 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapFallback(async (IDbContextFactory<MainDbContext> IDbContextFactory, HttpContext context, IUrlService urlService) =>
+{
+    var path = context.Request.Path.ToUriComponent().Trim('/');
+    using var db = IDbContextFactory.CreateDbContext();
+    var result = await db.Urls.FirstOrDefaultAsync(x=>x.ShortUrl == path);
+
+    if (string.IsNullOrEmpty(result.Url))
+        return Results.BadRequest();
+
+    return Results.Redirect(result.Url);
+});
+
 app.Run();

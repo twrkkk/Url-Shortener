@@ -24,16 +24,5 @@ namespace Url_Shortener.Controllers
 
             return Ok(url);
         }
-
-        [HttpPost("ShortToLong")]
-        public async Task<IActionResult> ShortToLong([FromBody] ShortRequest request)
-        {
-            var result = await _urlOperations.ShortToLongUrlAsync(request);
-
-            if (string.IsNullOrEmpty(result))
-                return BadRequest();
-
-            return Ok(result);
-        }
     }
 }
