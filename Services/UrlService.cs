@@ -5,14 +5,14 @@ using Url_Shortener.Data.Entities;
 
 namespace Url_Shortener.Services;
 
-public class UrlService : IUrlOperations
+public class UrlService : IUrlService
 {
     const string alphabet = "ABCDEFGHIJKLMNOPRSTUVWXYQ1234567890@abcdefghijklmnoprstuvWxyq";
-    private readonly MainDbContext _db;
+    private readonly IDbContextFactory<MainDbContext> _dbContextFactory;
 
-    public UrlService(MainDbContext db)
+    public UrlService(IDbContextFactory<MainDbContext> dbContextFactory)
     {
-        _db = db;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<string> LongToShortUrlAsync(LongRequest request)
@@ -27,15 +27,18 @@ public class UrlService : IUrlOperations
             ShortUrl = randomStr
         };
 
-        _db.Urls.Add(urlEntity);
-        await _db.SaveChangesAsync();
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        context.Urls.Add(urlEntity);
+        await context.SaveChangesAsync();
 
         return randomStr;
     }
 
     public async Task<string> ShortToLongUrlAsync(ShortRequest request)
     {
-        var data = await _db.Urls.FirstOrDefaultAsync(x => x.ShortUrl == request.ShortUrl);
-        return data.Url;
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+
+        var data = await context.Urls.AsNoTracking().FirstOrDefaultAsync(x => x.ShortUrl == request.ShortUrl);
+        return data?.Url;
     }
 }

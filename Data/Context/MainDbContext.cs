@@ -7,22 +7,7 @@ public class MainDbContext: DbContext
 {
     public DbSet<UrlDB> Urls { get; set; }
 
-
     public MainDbContext(DbContextOptions<MainDbContext> options) : base(options)
     {
-        if(Urls.FirstOrDefaultAsync() == null)
-            Database.EnsureCreatedAsync();
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        IConfigurationRoot configuration = new ConfigurationBuilder()
-            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile("appsettings.json")
-            .Build();
-
-        var connectionString = configuration.GetConnectionString("Default");
-
-        optionsBuilder.UseNpgsql(connectionString);
     }
 }

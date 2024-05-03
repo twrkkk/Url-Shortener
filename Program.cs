@@ -1,4 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using Url_Shortener.Data.Context;
+using Url_Shortener.Data.DTO;
+using Url_Shortener.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +12,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<MainDbContext>();
+var connectionString = builder.Configuration.GetConnectionString("Default");
+builder.Services.AddDbContextFactory<MainDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddTransient<IUrlService, UrlService>();
 
 var app = builder.Build();
 

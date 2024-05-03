@@ -2,7 +2,7 @@
 
 namespace Url_Shortener.Services;
 
-public interface IUrlOperations
+public interface IUrlService
 {
     Task<string> LongToShortUrlAsync(LongRequest request);
     Task<string> ShortToLongUrlAsync(ShortRequest request);
