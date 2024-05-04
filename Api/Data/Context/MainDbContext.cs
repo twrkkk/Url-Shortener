@@ -9,6 +9,5 @@ public class MainDbContext: DbContext
 
     public MainDbContext(DbContextOptions<MainDbContext> options) : base(options)
     {
-        Database.Migrate();
     }
 }

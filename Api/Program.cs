@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using NetSchool.Services.Logger;
 using Url_Shortener.Configuration;
 using Url_Shortener.Data.Context;
@@ -39,10 +40,15 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.UseAppCors();
+
+
+//Migrate Db
+using var scope = app.Services.GetService<IServiceScopeFactory>()?.CreateScope();
+var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MainDbContext>>();
+using var context = dbContextFactory.CreateDbContext();
+context.Database.Migrate();
 
 var logger = app.Services.GetRequiredService<IAppLogger>();
 

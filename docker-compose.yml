@@ -17,6 +17,3 @@ services:
     build:
      context: .
      dockerfile: Web/Url Shortener Client/Dockerfile
-
-  redis:
-    image: redis:latest
