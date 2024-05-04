@@ -1,12 +1,20 @@
 using Microsoft.EntityFrameworkCore;
-using NetSchool.Api.Configuration;
+using Microsoft.Extensions.Configuration;
+using NetSchool.Services.Logger;
+using Url_Shortener.Configuration;
 using Url_Shortener.Data.Context;
-using Url_Shortener.Data.DTO;
-using Url_Shortener.Services;
+using Url_Shortener.Services.Logger;
+using Url_Shortener.Services.Settings;
+using Url_Shortener.Services.UrlService;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var logSettings = Settings.Load<LogSettings>("Log");
+builder.Services.AddSingleton(logSettings);
+builder.AddAppLogger(logSettings);
+
+builder.Services.AddSingleton<IAppLogger, AppLogger>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -17,6 +25,7 @@ builder.Services.AddAppCors();
 var connectionString = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContextFactory<MainDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddTransient<IUrlService, UrlService>();
+
 
 var app = builder.Build();
 
@@ -35,16 +44,10 @@ app.MapControllers();
 
 app.UseAppCors();
 
-//app.MapFallback(async (IDbContextFactory<MainDbContext> IDbContextFactory, HttpContext context, IUrlService urlService) =>
-//{
-//    var path = context.Request.Path.ToUriComponent().Trim('/');
-//    using var db = IDbContextFactory.CreateDbContext();
-//    var result = await db.Urls.FirstOrDefaultAsync(x => x.ShortUrl == path);
+var logger = app.Services.GetRequiredService<IAppLogger>();
 
-//    if (string.IsNullOrEmpty(result.Url))
-//        return Results.BadRequest();
-
-//    return Results.Redirect(result.Url);
-//});
+logger.Information("The Api has started");
 
 app.Run();
+
+logger.Information("The Api has stopped");

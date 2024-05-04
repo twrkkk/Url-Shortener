@@ -1,4 +1,4 @@
-﻿namespace NetSchool.Api.Configuration;
+﻿namespace Url_Shortener.Configuration;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;

@@ -3,7 +3,7 @@ using Url_Shortener.Data.Context;
 using Url_Shortener.Data.DTO;
 using Url_Shortener.Data.Entities;
 
-namespace Url_Shortener.Services;
+namespace Url_Shortener.Services.UrlService;
 
 public class UrlService : IUrlService
 {
@@ -22,7 +22,7 @@ public class UrlService : IUrlService
             .Select(x => x[Random.Next(x.Length)]).ToArray());
 
         var urlEntity = new UrlDB
-        { 
+        {
             Url = request.LongUrl,
             ShortUrl = randomStr
         };

@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  url_shortener_postgresql:
+    image: postgres:14.1
+    
+  url_shortener_api:
+    image: ${DOCKER_REGISTRY-}urlshortenerapi
+    build:
+      context: .
+      dockerfile: Api/Dockerfile
+    depends_on:
+      - url_shortener_postgresql
+
+  url_shortener_blazorapp:
+    image: blazorapp
+    build:
+     context: .
+     dockerfile: Web/Url Shortener Client/Dockerfile
+
+  redis:
+    image: redis:latest

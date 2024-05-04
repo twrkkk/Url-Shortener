@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Url_Shortener.Data.DTO;
-using Url_Shortener.Services;
+using Url_Shortener.Services.UrlService;
 
 namespace Url_Shortener.Controllers
 {

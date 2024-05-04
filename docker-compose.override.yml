@@ -1,0 +1,46 @@
+version: '3.4'
+
+services:
+  url_shortener_postgresql:
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Passw0rd
+    ports:
+      - "45432:5432"
+    networks:
+      - shared_net
+    volumes:      
+      - ~/.docker-conf/postgresql/data/:/var/lib/postgresql/data
+      - /var/lib/postgresql/data
+    
+  url_shortener_api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "10000:8080"
+    networks:
+      - shared_net
+    env_file:
+      - env.api
+
+  url_shortener_blazorapp:
+      ports:
+        - 7165:80
+
+  redis:
+      restart: always
+      ports:
+          - "6379:6379"
+      volumes:
+          - $PWD/redis-data:/var/lib/redis
+          - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
+      environment:
+          - REDIS_PASSWORD=my-password
+          - REDIS_PORT=6379
+          - REDIS_DATABASES=16
+
+networks:
+  shared_net:
+    name: net
+    driver: bridge
